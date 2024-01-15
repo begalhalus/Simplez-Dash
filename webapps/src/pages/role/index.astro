@@ -1,0 +1,123 @@
+---
+import { Layout } from "@globals"
+export let route_nav = ["Dashboard", "Role"]
+import { Authentication } from "../../components/global/Authentication"
+---
+
+<Authentication />
+<Layout title="Role Access" route_nav={route_nav}>
+	<div class="row">
+		<div class="col-12">
+			<div class="card">
+				<div class="card-body">
+					<form>
+						<div class="row">
+							<div class="col">
+								<div class="text-start">
+									<label class="form-label">Filter</label>
+								</div>
+								<div class="d-flex">
+									<input
+										type="text"
+										name="search_filter"
+										id="search_filter"
+										class="form-control"
+										placeholder="Input Name ..."
+									/>
+									<span class="mx-2"></span>
+									<div class="d-flex">
+										<button
+											type="button"
+											class="btn btn-primary waves-effect btn-label waves-light me-2"
+											onclick="actControl('data')"
+										>
+											<i class="bx bx-search-alt label-icon"></i> Cari
+										</button>
+										<button
+											type="button"
+											class="btn btn-danger waves-effect btn-label waves-light"
+											onclick="actControl('reset')"
+										>
+											<i class="bx bx-search-alt label-icon"></i> Reset
+										</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-12">
+			<div class="card">
+				<div class="card-body">
+					<div class="row mb-2">
+						<div class="col-sm-12 d-flex justify-content-between">
+							<div class="text-sm-end">
+								<label class="form-label">List Data</label>
+							</div>
+							<div class="text-sm-start">
+								<a
+									href="/role/add"
+									class="btn btn-primary btn-rounded waves-effect waves-light mb-2 me-2 view"
+									data-label="Add Role"
+									data-bs-toggle="modal"
+									data-bs-target="#modal_theme_primary"
+									><i class="mdi mdi-plus me-1"></i> Add New Data
+								</a>
+							</div>
+						</div><!-- end col-->
+					</div>
+
+					<div class="table-responsive">
+						<div
+							class="alert alert-success alert-dismissible fade show"
+							role="alert"
+							style="display:none;"
+						>
+							<i class="mdi mdi-check-all me-2"></i>
+							<span id="success-message"></span>
+							<button
+								type="button"
+								class="btn-close"
+								data-bs-dismiss="alert"
+								aria-label="Close"></button>
+						</div>
+						<div class="load-data"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</Layout>
+
+<script is:inline>
+	actControl("data")
+	function actControl(x, y, z) {
+		if (x == "data") {
+			var search_filter = encodeURIComponent(
+				$("input[name=search_filter]").val()
+			)
+			$(".load-data").load(
+				"/role/data" +
+					"?search=" +
+					(!search_filter ? "" : search_filter) +
+					(y ? "&page=" + y : " ")
+			)
+		} else if (x == "reset") {
+			$("#search_filter").val("")
+			actControl("data")
+		}
+	}
+</script>
+<script is:inline src="/js/js_base.js"></script>
+<script is:inline src="/js/pages/form-validation.init.js"></script>
+<script is:inline src="/libs/parsleyjs/parsley.min.js"></script>
+<!-- Sweet Alerts js -->
+<script is:inline src="/libs/sweetalert2/sweetalert2.min.js"></script>
+<!-- Sweet alert init js-->
+<script is:inline src="/js/pages/sweet-alerts.init.js"></script>
+<script is:inline src="/js/pages/modal.init.js"></script>

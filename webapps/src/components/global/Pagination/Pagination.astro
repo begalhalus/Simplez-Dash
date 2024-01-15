@@ -1,0 +1,53 @@
+---
+const { length, currentUrl, currentPage, firstUrl, lastUrl } = Astro.props
+const limit = 3
+const paginationList = Array.from({ length: `${length}` }, (_, i) => i + 1)
+const startIndex = Math.max(0, currentPage - Math.floor(limit / 2) - 1)
+const endIndex = Math.min(paginationList.length - 1, startIndex + limit - 1)
+const paginationListToShow = paginationList.slice(startIndex, endIndex + 1)
+---
+
+<ul class="pagination pagination-rounded justify-content-end mb-2">
+	{
+		firstUrl == currentUrl ? (
+			<li class="page-item disabled">
+				<a class="page-link" href="javascript: void(0);" aria-label="Previous">
+					<i class="mdi mdi-chevron-left" />
+				</a>
+			</li>
+		) : (
+			<li class="page-item" onclick={`actControl('data', ${currentUrl - 1})`}>
+				<a class="page-link" href="javascript: void(0);" aria-label="Previous">
+					<i class="mdi mdi-chevron-left" />
+				</a>
+			</li>
+		)
+	}
+
+	{
+		paginationListToShow.map((num) => (
+			<li
+				onclick={`actControl('data', ${num})`}
+				class={`page-item ${currentPage == num ? "active" : ""}`}
+			>
+				<a class="page-link" href="javascript: void(0);">{`${num}`}</a>
+			</li>
+		))
+	}
+
+	{
+		lastUrl == currentUrl ? (
+			<li class="page-item disabled">
+				<a class="page-link" href="javascript: void(0);" aria-label="Next">
+					<i class="mdi mdi-chevron-right" />
+				</a>
+			</li>
+		) : (
+			<li class="page-item" onclick={`actControl('data', ${currentUrl + 1})`}>
+				<a class="page-link" href="javascript: void(0);" aria-label="Next">
+					<i class="mdi mdi-chevron-right" />
+				</a>
+			</li>
+		)
+	}
+</ul>

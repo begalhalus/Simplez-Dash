@@ -1,0 +1,191 @@
+---
+import { LoginLayout } from "@globals";
+---
+
+<LoginLayout title="Login">
+  <div class="account-pages my-5 pt-sm-5">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6 col-xl-5">
+          <div
+            class="alert alert-warning alert-dismissible fade show"
+            role="alert"
+            style="display:none;"
+          >
+            <i class="mdi mdi-alert-outline me-2"></i>
+            <span id="error-message"></span>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="alert"
+              aria-label="Close"></button>
+          </div>
+
+          <div class="card overflow-hidden">
+            <div class="bg-primary bg-soft">
+              <div class="row">
+                <div class="col-7">
+                  <div class="text-primary p-4">
+                    <h5 class="text-primary">Welcome Back !</h5>
+                    <p>Sign in to continue to Simplez Dash.</p>
+                  </div>
+                </div>
+                <div class="col-5 align-self-end">
+                  <img src="/images/profile-img.png" alt="" class="img-fluid" />
+                </div>
+              </div>
+            </div>
+            <div class="card-body pt-0">
+              <div class="auth-logo">
+                <a class="auth-logo-light">
+                  <div class="avatar-md profile-user-wid mb-4">
+                    <span class="avatar-title rounded-circle bg-light">
+                      <img
+                        src="/images/logo-light.svg"
+                        alt=""
+                        class="rounded-circle"
+                        height="34"
+                      />
+                    </span>
+                  </div>
+                </a>
+
+                <a class="auth-logo-dark">
+                  <div class="avatar-md profile-user-wid mb-4">
+                    <span class="avatar-title rounded-circle bg-light">
+                      <img
+                        src="/images/logo2.png"
+                        alt=""
+                        class="rounded-circle"
+                        height="34"
+                      />
+                    </span>
+                  </div>
+                </a>
+              </div>
+              <div class="p-2">
+                <form class="form-horizontal" action="index.html">
+                  <div class="mb-3">
+                    <label for="username" class="form-label">Username</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="username"
+                      name="username"
+                      placeholder="Enter username"
+                    />
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <div class="input-group auth-pass-inputgroup">
+                      <input
+                        type="password"
+                        class="form-control"
+                        placeholder="Enter password"
+                        aria-label="Password"
+                        name="password"
+                        id="password"
+                        aria-describedby="password-addon"
+                      />
+                      <button
+                        class="btn btn-light"
+                        type="button"
+                        id="password-addon"
+                        ><i class="mdi mdi-eye-outline"></i></button
+                      >
+                    </div>
+                  </div>
+
+                  <div class="form-check">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      id="remember-check"
+                    />
+                    <label class="form-check-label" for="remember-check">
+                      Remember me
+                    </label>
+                  </div>
+
+                  <div class="mt-3 d-grid">
+                    <button
+                      class="btn btn-primary waves-effect waves-light"
+                      type="button"
+                      data-login>Log In</button
+                    >
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+          <div class="mt-5 text-center">
+            <div>
+              <p>
+                <i class="mdi mdi-heart text-danger"></i> 2023 - Bambu Kuning
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script is:inline src="/libs/jquery/jquery.min.js"></script>
+  <script is:inline src="/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script is:inline src="/libs/metismenu/metisMenu.min.js"></script>
+  <script is:inline src="/libs/simplebar/simplebar.min.js"></script>
+  <script is:inline src="/libs/node-waves/waves.min.js"></script>
+  <script>
+    import { API_URL } from "@globals";
+
+    $(document).ready(function () {
+      $("button[data-login]").click(async function () {
+        var username = $("#username").val();
+        var password = $('[name="password"]').val();
+
+        const loginData = {
+          username: username,
+          password: password,
+        };
+
+        try {
+          const response = await fetch(API_URL + "/user/v1/login", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(loginData),
+          });
+
+          const data = await response.json();
+
+          if (data.status == 200) {
+            const params = {
+              token: data.data.token,
+              name: data.data.name,
+              role: data.data.role.name,
+              datetime: new Date().getTime(),
+            };
+            localStorage.setItem("config", JSON.stringify(params));
+            setCookie("config", JSON.stringify(params));
+            window.location.href = "/";
+          } else {
+            $(".alert-warning").show();
+            $("#error-message").text(data.message);
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      });
+
+      function setCookie(name, value, days = 365) {
+        const date = new Date();
+        date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+        const expires = "expires=" + date.toUTCString();
+        document.cookie = name + "=" + value + ";" + expires + ";path=/";
+      }
+    });
+  </script>
+  <!-- App js -->
+  <script is:inline src="/js/app.js"></script>
+</LoginLayout>

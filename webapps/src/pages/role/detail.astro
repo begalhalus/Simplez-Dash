@@ -1,0 +1,66 @@
+---
+import { Authentication } from "../../components/global/Authentication"
+import { fetchData } from "../../lib/data"
+const cookie = Astro.request.headers.get("cookie")
+const token = JSON.parse(
+	cookie.substring(cookie.indexOf("{"), cookie.lastIndexOf("}") + 1)
+).token
+const canonicalURL = new URL(Astro.request.url)
+const searchParams = new URLSearchParams(canonicalURL.search)
+const idxValue = searchParams.get("idx")
+const role = await fetchData("/user/v1/role/detail/" + idxValue, token)
+---
+
+<Authentication />
+<div class="col-xl-12">
+	<div class="card">
+		<div class="card-body">
+			<h4 class="card-title">Detail Role Access</h4>
+			<p class="card-title-desc">
+				Fitur detail role akses untuk memudahkan manajemen role.
+			</p>
+
+			<div
+				class="alert alert-warning alert-dismissible fade show"
+				role="alert"
+				style="display:none;"
+			>
+				<i class="mdi mdi-alert-outline me-2"></i>
+				<span id="error-message"></span>
+				<button
+					type="button"
+					class="btn-close"
+					data-bs-dismiss="alert"
+					aria-label="Close"></button>
+			</div>
+
+			<form>
+				<div class="mb-3">
+					<label class="form-label">Role Name</label>
+					<input
+						type="text"
+						name="role_name"
+						class="form-control"
+						value={role.data.name}
+						disabled
+						placeholder="Role Name"
+					/>
+				</div>
+
+				<div class="mb-3">
+					<label class="form-label">Description</label>
+					<div>
+						<textarea
+							required
+							class="form-control"
+							name="role_desc"
+							rows="3"
+							disabled
+							placeholder="Description">{role.data.description}</textarea
+						>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>

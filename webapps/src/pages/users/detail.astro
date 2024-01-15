@@ -1,0 +1,106 @@
+---
+import { Authentication } from "../../components/global/Authentication"
+import { fetchData } from "../../lib/data"
+const cookie = Astro.request.headers.get("cookie")
+const token = JSON.parse(
+	cookie.substring(cookie.indexOf("{"), cookie.lastIndexOf("}") + 1)
+).token
+const canonicalURL = new URL(Astro.request.url)
+const searchParams = new URLSearchParams(canonicalURL.search)
+const idxValue = searchParams.get("idx")
+const users = await fetchData("/user/v1/detail/" + idxValue, token)
+const limitParam = canonicalURL.search ? "&limit=1000" : "?limit=100000"
+const role = await fetchData(
+	"/user/v1/role/list" + canonicalURL.search.concat(limitParam),
+	token
+)
+---
+
+<Authentication />
+<div class="col-xl-12">
+	<div class="card">
+		<div class="card-body">
+			<h4 class="card-title">Detail Users Access</h4>
+			<p class="card-title-desc">
+				Fitur detail user akses untuk memudahkan manajemen user.
+			</p>
+
+			<div
+				class="alert alert-warning alert-dismissible fade show"
+				role="alert"
+				style="display:none;"
+			>
+				<i class="mdi mdi-alert-outline me-2"></i>
+				<span id="error-message"></span>
+				<button
+					type="button"
+					class="btn-close"
+					data-bs-dismiss="alert"
+					aria-label="Close"></button>
+			</div>
+
+			<form class="custom-validation" id="forms_update">
+				<div class="mb-3">
+					<label class="form-label">Role</label>
+					<select
+						class="form-control select2"
+						id="select2inmodal"
+						name="role_id"
+						disabled
+					>
+						<option>Select</option>
+						{
+							role.data.list.map((row, index) => (
+								<option value={row.id} selected={row.id === users.data.role.id}>
+									{row.name}
+								</option>
+							))
+						}
+					</select>
+				</div>
+
+				<div class="mb-3">
+					<label class="form-label">Full Name</label>
+					<input
+						type="text"
+						name="name"
+						class="form-control"
+						autocomplete="off"
+						value={users.data.name}
+						required
+						disabled
+						placeholder="Full Name"
+					/>
+				</div>
+
+				<div class="mb-3">
+					<label class="form-label">Username</label>
+					<input
+						type="text"
+						name="username"
+						class="form-control"
+						value={users.data.username}
+						required
+						disabled
+						autocomplete="off"
+						placeholder="Username"
+					/>
+				</div>
+
+				<div class="mb-3">
+					<label class="form-label">Password</label>
+					<input
+						type="password"
+						name="password"
+						class="form-control"
+						value={users.data.password}
+						required
+						disabled
+						autocomplete="off"
+						placeholder="Password"
+					/>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>

@@ -1,0 +1,115 @@
+---
+import { Authentication } from "../../components/global/Authentication";
+import { fetchData } from "../../lib/data";
+import { Pagination } from "@globals";
+import { API_URL } from "@globals";
+const cookie = Astro.request.headers.get("cookie");
+const token = JSON.parse(
+  cookie.substring(cookie.indexOf("{"), cookie.lastIndexOf("}") + 1)
+).token;
+const canonicalURL = new URL(Astro.request.url);
+const role = await fetchData("/user/v1/role/list" + canonicalURL.search, token);
+---
+
+<!-- Sweet Alert-->
+<link
+  href="/libs/sweetalert2/sweetalert2.min.css"
+  rel="stylesheet"
+  type="text/css"
+/>
+
+<Authentication />
+<table class="table align-middle table-nowrap table-check">
+  <thead class="table-light">
+    <tr>
+      <th class="align-middle">No</th>
+      <th class="align-middle">Role Name</th>
+      <th class="align-middle">Description</th>
+      <th class="align-middle">View Detail</th>
+      <th class="align-middle">Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    {
+      role.data.list.length === 0 ? (
+        <tr>
+          <td
+            colSpan="5"
+            className="text-center"
+            style={{ textAlign: "center" }}
+          >
+            Maaf, tidak tidak tersedia
+          </td>
+        </tr>
+      ) : (
+        role.data.list.map((row, index) => (
+          <tr class="hover:bg-gray-100 dark:hover:bg-gray-700">
+            <td>
+              <a href="javascript: void(0);" class="text-body fw-bold">
+                {" "}
+                &nbsp {index + 1}
+              </a>
+            </td>
+            <td>{row.name}</td>
+            <td>{row.description}</td>
+            <td>
+              <a
+                href={`/role/detail?idx=${row.id}`}
+                class="btn btn-primary btn-sm btn-rounded view"
+                data-label="Detail Role"
+                data-bs-toggle="modal"
+                data-bs-target="#modal_theme_primary"
+              >
+                View Details
+              </a>
+            </td>
+            <td>
+              <div class="d-flex gap-3">
+                <a
+                  href={`/role/edit?idx=${row.id}`}
+                  class="text-primary view"
+                  data-label="Edit Role"
+                  data-bs-toggle="modal"
+                  data-bs-target="#modal_theme_primary"
+                >
+                  <i class="mdi mdi-pencil font-size-18" />
+                </a>
+                <a
+                  href={`${API_URL}/user/v1/role/soft-delete/${row.id}`}
+                  data-id={row.id}
+                  data-token={`${token}`}
+                  class="text-danger delete"
+                >
+                  <i class="mdi mdi-delete font-size-18" />
+                </a>
+              </div>
+            </td>
+          </tr>
+        ))
+      )
+    }
+  </tbody>
+</table>
+<div id="modal_theme_primary" class="modal fade">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h6 class="modal-title" id="myLargeModalLabel"></h6>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="myLargeModalBody"></div>
+    </div>
+  </div>
+</div>
+
+<Pagination
+  length={role.data.total_page}
+  currentUrl={role.data.page}
+  currentPage={role.data.page}
+  firstUrl={1}
+  lastUrl={role.data.total_page}
+/>
